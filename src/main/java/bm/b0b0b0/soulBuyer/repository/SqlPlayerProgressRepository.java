@@ -75,6 +75,17 @@ public final class SqlPlayerProgressRepository implements PlayerProgressReposito
         });
     }
 
+    @Override
+    public CompletableFuture<Boolean> trySpendPoints(UUID playerId, double amount) {
+        return find(playerId).thenCompose(existing -> {
+            if (existing.points() + 1.0E-9D < amount) {
+                return CompletableFuture.completedFuture(false);
+            }
+            return save(new PlayerProgress(playerId, existing.points() - amount, existing.categoryXp()))
+                    .thenApply(ignored -> true);
+        });
+    }
+
     private Map<String, Double> parseCategoryXp(String json) {
         return new HashMap<>(SimpleJsonDoubles.decode(json));
     }

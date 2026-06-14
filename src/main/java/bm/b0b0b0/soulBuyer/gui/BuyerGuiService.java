@@ -1,6 +1,7 @@
 package bm.b0b0b0.soulBuyer.gui;
 
 import bm.b0b0b0.soulBuyer.autosell.AutosellService;
+import bm.b0b0b0.soulBuyer.booster.BoosterService;
 import bm.b0b0b0.soulBuyer.config.PluginConfig;
 import bm.b0b0b0.soulBuyer.debug.SoulBuyerDebugLog;
 import bm.b0b0b0.soulBuyer.item.ItemNameResolver;
@@ -24,6 +25,7 @@ public final class BuyerGuiService implements BuyerMenuNavigation {
     private final SellService sellService;
     private final BuyerStatsService buyerStatsService;
     private final AutosellService autosellService;
+    private final BoosterService boosterService;
     private final SoulBuyerDebugLog debug;
 
     public BuyerGuiService(
@@ -37,6 +39,7 @@ public final class BuyerGuiService implements BuyerMenuNavigation {
             SellService sellService,
             BuyerStatsService buyerStatsService,
             AutosellService autosellService,
+            BoosterService boosterService,
             SoulBuyerDebugLog debug
     ) {
         this.plugin = plugin;
@@ -49,6 +52,7 @@ public final class BuyerGuiService implements BuyerMenuNavigation {
         this.sellService = sellService;
         this.buyerStatsService = buyerStatsService;
         this.autosellService = autosellService;
+        this.boosterService = boosterService;
         this.debug = debug;
     }
 
@@ -82,6 +86,24 @@ public final class BuyerGuiService implements BuyerMenuNavigation {
                 sellService,
                 buyerStatsService,
                 autosellService,
+                boosterService,
+                this,
+                session
+        );
+        player.openInventory(menu.getInventory());
+    }
+
+    @Override
+    public void openBoosters(Player player, BuyerMenuSession session) {
+        debug.log("GUI open boosters for " + player.getName());
+        BuyerBoostersMenu menu = new BuyerBoostersMenu(
+                plugin,
+                player,
+                config,
+                messageService,
+                itemFactory,
+                itemNameResolver,
+                boosterService,
                 this,
                 session
         );

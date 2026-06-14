@@ -10,6 +10,7 @@ import bm.b0b0b0.soulBuyer.message.MessageService;
 import bm.b0b0b0.soulBuyer.model.ItemUnitQuote;
 import bm.b0b0b0.soulBuyer.model.PlayerProgress;
 import bm.b0b0b0.soulBuyer.model.SellLine;
+import bm.b0b0b0.soulBuyer.model.SellLimitSplit;
 import bm.b0b0b0.soulBuyer.model.SellQuote;
 import bm.b0b0b0.soulBuyer.model.SellableItemDefinition;
 import bm.b0b0b0.soulBuyer.progression.ProgressionService;
@@ -262,23 +263,34 @@ public final class SellService {
         context.secureStorage().markProcessing(playerId, concat(cloneStacks(sellStacks), cloneStacks(returnStacks)));
         debug.log("sell begin " + player.getName() + " stacks=" + sellStacks.size() + " return=" + returnStacks.size());
 
-        context.playerProgressRepository().find(playerId).thenAccept(progress -> {
+        String periodKey = context.sellLimitService().periodKey();
+        context.playerProgressRepository().find(playerId).thenCompose(progress -> {
             context.cacheProgress(progress);
-            SellQuote quote = context.priceQuoteService().quote(player, sellStacks, progress);
-            if (quote.lines().isEmpty()) {
-                runMain(() -> {
-                    context.secureStorage().tryAbort(playerId).forEach(stack -> ItemReturner.give(player, stack));
-                    if (player.isOnline()) {
-                        context.messageService().send(player, "sell.empty");
-                    }
-                    if (onComplete != null) {
-                        onComplete.run();
-                    }
-                });
+            return context.sellLimitRepository().find(playerId, periodKey).thenApply(usage -> {
+                SellLimitSplit split = context.sellLimitService().split(player, sellStacks, usage);
+                SellQuote quote = context.priceQuoteService().quote(player, split.sellStacks(), progress);
+                return new PreparedSale(split, quote);
+            });
+        }).thenAccept(prepared -> runMain(() -> {
+            if (prepared.quote().lines().isEmpty()) {
+                context.secureStorage().tryAbort(playerId).forEach(stack -> ItemReturner.give(player, stack));
+                if (player.isOnline()) {
+                    String key = prepared.split().sellStacks().isEmpty() && !sellStacks.isEmpty()
+                            ? "sell.limit-reached"
+                            : "sell.empty";
+                    context.messageService().send(player, key);
+                }
+                if (onComplete != null) {
+                    onComplete.run();
+                }
                 return;
             }
-            runMain(() -> finalizeSale(player, quote, returnStacks, delivery, onComplete, mode));
-        });
+            List<ItemStack> mergedReturn = concat(returnStacks, prepared.split().returnStacks());
+            finalizeSale(player, prepared.quote(), mergedReturn, delivery, onComplete, mode, periodKey);
+        }));
+    }
+
+    private record PreparedSale(SellLimitSplit split, SellQuote quote) {
     }
 
     private void finalizeSale(
@@ -287,7 +299,8 @@ public final class SellService {
             List<ItemStack> returnStacks,
             SaleDelivery delivery,
             Runnable onComplete,
-            BuyerPayoutMode payoutMode
+            BuyerPayoutMode payoutMode,
+            String periodKey
     ) {
         UUID playerId = player.getUniqueId();
         if (!context.secureStorage().tryEnterFinalize(playerId)) {
@@ -304,8 +317,18 @@ public final class SellService {
             }
             return;
         }
+        if (!context.progressionService().isValidPayout(quote.totalMoney())) {
+            debug.warn("sell payout rejected for " + player.getName() + " money=" + quote.totalMoney());
+            context.secureStorage().cancelFinalize(playerId).forEach(stack -> ItemReturner.give(player, stack));
+            context.messageService().send(player, "sell.payout-limit");
+            if (onComplete != null) {
+                onComplete.run();
+            }
+            return;
+        }
         boolean paid = context.economyPayoutRouter().deposit(player, payoutMode, quote.totalMoney());
         if (!paid) {
+            debug.warn("sell deposit failed for " + player.getName() + " money=" + quote.totalMoney());
             context.secureStorage().cancelFinalize(playerId).forEach(stack -> ItemReturner.give(player, stack));
             context.messageService().send(player, "sell.failed");
             if (onComplete != null) {
@@ -329,6 +352,7 @@ public final class SellService {
 
         context.saleLogRepository().enqueue(playerId, context.config().serverId(), quote.lines(), quote.totalMoney(), quote.totalPoints());
         context.buyerStatsService().recordSale(playerId, quote.totalMoney(), quote.totalPoints(), quote.lines().size());
+        context.sellLimitRepository().recordSale(playerId, periodKey, quote.lines());
 
         context.secureStorage().commitFinalize(playerId);
         ItemReturner.returnItems(player, returnStacks);
@@ -439,5 +463,9 @@ public final class SellService {
         void cacheProgress(bm.b0b0b0.soulBuyer.model.PlayerProgress progress);
 
         BuyerStatsService buyerStatsService();
+
+        bm.b0b0b0.soulBuyer.limit.SellLimitService sellLimitService();
+
+        bm.b0b0b0.soulBuyer.repository.PlayerSellLimitRepository sellLimitRepository();
     }
 }

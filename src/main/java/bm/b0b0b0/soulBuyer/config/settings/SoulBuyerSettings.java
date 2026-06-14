@@ -113,6 +113,22 @@ public final class SoulBuyerSettings extends YamlSerializable {
 
     @NewLine
     @Comment({
+            @CommentValue("=== БУСТЕРЫ ==="),
+            @CommentValue("Магазин временных усилений в меню скупщика."),
+            @CommentValue("currency: progression_points | vault | playerpoints")
+    })
+    public BoostersSettings boosters = new BoostersSettings();
+
+    @NewLine
+    @Comment({
+            @CommentValue("=== ЛИМИТЫ ПРОДАЖ ==="),
+            @CommentValue("Персональный дневной лимит на каждый item-id (анти-демпинг)."),
+            @CommentValue("permission-limits — LuckPerms-нода → лимит шт./сутки (берётся максимальный).")
+    })
+    public SellLimitsSettings sellLimits = new SellLimitsSettings();
+
+    @NewLine
+    @Comment({
             @CommentValue("=== КАТЕГОРИИ РЕСУРСОВ ==="),
             @CommentValue("id категории → ключ названия в lang/*.yml (categories.ores и т.д.)."),
             @CommentValue("order — порядок в GUI каталога (меньше = выше).")
@@ -125,6 +141,12 @@ public final class SoulBuyerSettings extends YamlSerializable {
 
         @Comment(@CommentValue("flat: plugins/SoulBuyer/data/autosell/{uuid}.yml — настройки автопродажи"))
         public String autosellFolder = "data/autosell";
+
+        @Comment(@CommentValue("flat: plugins/SoulBuyer/data/boosters/{uuid}.yml — активные бустеры"))
+        public String boostersFolder = "data/boosters";
+
+        @Comment(@CommentValue("flat: plugins/SoulBuyer/data/sell-limits/{uuid}.yml — продажи за период"))
+        public String sellLimitsFolder = "data/sell-limits";
 
         @Comment(@CommentValue("flat: plugins/SoulBuyer/data/market.yml — коэффициенты рынка"))
         public String marketFile = "data/market.yml";
@@ -229,6 +251,7 @@ public final class SoulBuyerSettings extends YamlSerializable {
         public String admin = "soulbuyer.admin";
         public String autosell = "soulbuyer.autosell";
         public String donate = "soulbuyer.donate";
+        public String boosters = "soulbuyer.boosters";
     }
 
     public static final class MarketSettings {
@@ -315,6 +338,18 @@ public final class SoulBuyerSettings extends YamlSerializable {
         @Comment(@CommentValue("+% к доходу за каждый уровень XP в доминирующей категории"))
         public double dominantCategoryBonusPerLevel = 0.5D;
 
+        @Comment(@CommentValue("Сколько category-xp = 1 уровень для бонуса (не сырой XP)"))
+        public double categoryXpPerLevel = 1000.0D;
+
+        @Comment(@CommentValue("Потолок множителя от категории (1.0 = без бонуса, 2.5 = +150%)"))
+        public double maxCategoryBonus = 2.5D;
+
+        @Comment(@CommentValue("Макс. цена за 1 шт. в расчёте (защита от разгона)"))
+        public double maxUnitPrice = 1_000_000.0D;
+
+        @Comment(@CommentValue("Макс. выплата Vault/PlayerPoints за одну продажу"))
+        public double maxPayoutPerSale = 50_000_000.0D;
+
         @Comment(@CommentValue("Сколько XP категории начислять за 1 заработанное очко"))
         public double categoryXpPerPoint = 1.0D;
     }
@@ -346,6 +381,51 @@ public final class SoulBuyerSettings extends YamlSerializable {
 
         @Comment(@CommentValue("Куда платить при dual buyer: vault | player-points (только если economy.donate-buyer-enabled)"))
         public String defaultPayout = "vault";
+    }
+
+    public static final class BoostersSettings {
+        @Comment(@CommentValue("false — кнопка бустеров скрыта, покупка недоступна"))
+        public boolean enabled = true;
+
+        @Comment(@CommentValue("progression_points | vault | playerpoints"))
+        public String currency = "progression_points";
+
+        @Comment(@CommentValue("id предложения → параметры бустера"))
+        public Map<String, BoosterOfferSettings> offers = defaultBoosterOffers();
+    }
+
+    public static final class BoosterOfferSettings {
+        @Comment(@CommentValue("multiplier | money | limit"))
+        public String type = "multiplier";
+
+        @Comment(@CommentValue("multiplier: +к множителю; money/limit: множитель эффекта (1.25, 2.0)"))
+        public double effect = 0.5D;
+
+        @Comment(@CommentValue("Длительность бустера, сек"))
+        public int durationSeconds = 3600;
+
+        @Comment(@CommentValue("Цена в валюте boosters.currency"))
+        public double price = 125D;
+
+        @Comment(@CommentValue("Material иконки в GUI бустеров"))
+        public String material = "EXPERIENCE_BOTTLE";
+
+        @Comment(@CommentValue("Ключ названия в lang/*.yml"))
+        public String nameKey = "gui.boosters.offer-multiplier";
+
+        @Comment(@CommentValue("Ключи lore в lang/*.yml"))
+        public List<String> loreKeys = List.of("gui.boosters.offer-lore");
+    }
+
+    public static final class SellLimitsSettings {
+        @Comment(@CommentValue("false — лимиты не проверяются"))
+        public boolean enabled = true;
+
+        @Comment(@CommentValue("Лимит шт./сутки на item-id без спец. permission"))
+        public int defaultPerItem = 64;
+
+        @Comment(@CommentValue("LuckPerms-нода → лимит шт./сутки (максимум из выданных)"))
+        public Map<String, Integer> permissionLimits = defaultSellLimitPermissions();
     }
 
     public static final class CategorySettings {
@@ -395,5 +475,45 @@ public final class SoulBuyerSettings extends YamlSerializable {
 
     private static List<String> defaultDonateOpenAliases() {
         return List.of("dbuyer", "ppbuyer", "donatesell");
+    }
+
+    private static Map<String, BoosterOfferSettings> defaultBoosterOffers() {
+        Map<String, BoosterOfferSettings> offers = new LinkedHashMap<>();
+
+        BoosterOfferSettings multiplier = new BoosterOfferSettings();
+        multiplier.type = "multiplier";
+        multiplier.effect = 0.5D;
+        multiplier.durationSeconds = 3600;
+        multiplier.price = 125D;
+        multiplier.material = "EXPERIENCE_BOTTLE";
+        multiplier.nameKey = "gui.boosters.offer-multiplier";
+        offers.put("multiplier", multiplier);
+
+        BoosterOfferSettings money = new BoosterOfferSettings();
+        money.type = "money";
+        money.effect = 1.25D;
+        money.durationSeconds = 3600;
+        money.price = 175D;
+        money.material = "GOLD_INGOT";
+        money.nameKey = "gui.boosters.offer-money";
+        offers.put("money", money);
+
+        BoosterOfferSettings limit = new BoosterOfferSettings();
+        limit.type = "limit";
+        limit.effect = 2.0D;
+        limit.durationSeconds = 1800;
+        limit.price = 75D;
+        limit.material = "CHEST";
+        limit.nameKey = "gui.boosters.offer-limit";
+        offers.put("limit", limit);
+
+        return offers;
+    }
+
+    private static Map<String, Integer> defaultSellLimitPermissions() {
+        Map<String, Integer> limits = new LinkedHashMap<>();
+        limits.put("soulbuyer.limit.vip", 128);
+        limits.put("soulbuyer.limit.premium", 256);
+        return limits;
     }
 }

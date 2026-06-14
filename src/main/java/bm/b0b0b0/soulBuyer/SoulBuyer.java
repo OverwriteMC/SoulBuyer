@@ -15,6 +15,8 @@ import bm.b0b0b0.soulBuyer.api.UnavailableSoulBuyerApi;
 import bm.b0b0b0.soulBuyer.autosell.AutosellContainerListener;
 import bm.b0b0b0.soulBuyer.autosell.AutosellPickupListener;
 import bm.b0b0b0.soulBuyer.autosell.AutosellService;
+import bm.b0b0b0.soulBuyer.booster.BoosterService;
+import bm.b0b0b0.soulBuyer.limit.SellLimitService;
 import java.util.Map;
 import bm.b0b0b0.soulBuyer.gui.BuyerGuiService;
 import bm.b0b0b0.soulBuyer.gui.BuyerMenuItemRenderer;
@@ -278,7 +280,28 @@ public final class SoulBuyer extends JavaPlugin {
                         })
                 );
 
-        PriceQuoteService priceQuoteService = new PriceQuoteService(itemRegistry, marketService, progressionService);
+        BoosterService boosterService = new BoosterService(
+                this,
+                pluginConfig,
+                messageService,
+                session.playerBoosters(),
+                session.playerProgress(),
+                vaultEconomyHook,
+                playerPointsEconomyHook,
+                playerId -> session.playerProgress().find(playerId).thenAccept(runtime::cacheProgress)
+        );
+        SellLimitService sellLimitService = new SellLimitService(
+                pluginConfig,
+                itemRegistry,
+                boosterService,
+                session.playerSellLimits()
+        );
+        PriceQuoteService priceQuoteService = new PriceQuoteService(
+                itemRegistry,
+                marketService,
+                progressionService,
+                boosterService
+        );
         SellSecureStorage secureStorage = new SellSecureStorage();
 
         placeholderApiBridge = new PlaceholderApiBridge(this);
@@ -321,6 +344,7 @@ public final class SoulBuyer extends JavaPlugin {
                 sellService,
                 buyerStatsService,
                 autosellService,
+                boosterService,
                 debugLog
         );
 
@@ -333,6 +357,7 @@ public final class SoulBuyer extends JavaPlugin {
                 marketService,
                 progressionService,
                 session.playerProgress(),
+                session.playerSellLimits(),
                 saleLogRepository,
                 vaultEconomyHook,
                 playerPointsEconomyHook,
@@ -340,6 +365,8 @@ public final class SoulBuyer extends JavaPlugin {
                 secureStorage,
                 buyerGuiService,
                 buyerStatsService,
+                boosterService,
+                sellLimitService,
                 catalogRotationService
         );
         debugLog.boot("runtime.bind complete, ready=" + runtime.isReady());
@@ -363,6 +390,7 @@ public final class SoulBuyer extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AutosellContainerListener(autosellService), this);
         for (Player online : getServer().getOnlinePlayers()) {
             autosellService.preload(online);
+            boosterService.preload(online);
         }
 
         long flushInterval = Math.max(1000L, pluginConfig.market().saleFlushIntervalMs);

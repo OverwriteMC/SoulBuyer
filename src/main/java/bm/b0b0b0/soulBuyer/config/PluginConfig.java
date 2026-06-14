@@ -1,6 +1,7 @@
 package bm.b0b0b0.soulBuyer.config;
 
 import bm.b0b0b0.soulBuyer.config.settings.GuiAutosellSettings;
+import bm.b0b0b0.soulBuyer.config.settings.GuiBoostersSettings;
 import bm.b0b0b0.soulBuyer.config.settings.GuiBuyerSettings;
 import bm.b0b0b0.soulBuyer.config.settings.GuiGeneralSettings;
 import bm.b0b0b0.soulBuyer.config.settings.GuiQuantitySettings;
@@ -18,6 +19,7 @@ public final class PluginConfig {
     private final GuiBuyerSettings buyerGui;
     private final GuiQuantitySettings quantityGui;
     private final GuiAutosellSettings autosellGui;
+    private final GuiBoostersSettings boostersGui;
 
     public PluginConfig(
             SoulBuyerSettings main,
@@ -25,7 +27,8 @@ public final class PluginConfig {
             GuiGeneralSettings generalGui,
             GuiBuyerSettings buyerGui,
             GuiQuantitySettings quantityGui,
-            GuiAutosellSettings autosellGui
+            GuiAutosellSettings autosellGui,
+            GuiBoostersSettings boostersGui
     ) {
         this.main = main;
         this.items = items;
@@ -33,6 +36,7 @@ public final class PluginConfig {
         this.buyerGui = buyerGui;
         this.quantityGui = quantityGui;
         this.autosellGui = autosellGui;
+        this.boostersGui = boostersGui;
     }
 
     public SoulBuyerSettings main() {
@@ -57,6 +61,26 @@ public final class PluginConfig {
 
     public GuiAutosellSettings autosellGui() {
         return autosellGui;
+    }
+
+    public GuiBoostersSettings boostersGui() {
+        return boostersGui;
+    }
+
+    public SoulBuyerSettings.BoostersSettings boosters() {
+        return main.boosters;
+    }
+
+    public SoulBuyerSettings.SellLimitsSettings sellLimits() {
+        return main.sellLimits;
+    }
+
+    public boolean boostersFeatureEnabled() {
+        return main.boosters.enabled;
+    }
+
+    public String permissionBoosters() {
+        return main.permissions.boosters;
     }
 
     public String storageType() {

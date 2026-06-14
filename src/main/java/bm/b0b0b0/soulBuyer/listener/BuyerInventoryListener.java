@@ -1,6 +1,7 @@
 package bm.b0b0b0.soulBuyer.listener;
 
 import bm.b0b0b0.soulBuyer.gui.BuyerAutosellMenu;
+import bm.b0b0b0.soulBuyer.gui.BuyerBoostersMenu;
 import bm.b0b0b0.soulBuyer.gui.BuyerMenu;
 import bm.b0b0b0.soulBuyer.gui.BuyerQuantityMenu;
 import bm.b0b0b0.soulBuyer.service.SellService;
@@ -31,7 +32,8 @@ public final class BuyerInventoryListener implements Listener {
         InventoryHolder holder = top.getHolder(false);
         if (!(holder instanceof BuyerMenu)
                 && !(holder instanceof BuyerQuantityMenu)
-                && !(holder instanceof BuyerAutosellMenu)) {
+                && !(holder instanceof BuyerAutosellMenu)
+                && !(holder instanceof BuyerBoostersMenu)) {
             return;
         }
         int topSize = top.getSize();
@@ -59,6 +61,8 @@ public final class BuyerInventoryListener implements Listener {
             quantityMenu.handleClick(rawSlot);
         } else if (holder instanceof BuyerAutosellMenu autosellMenu) {
             autosellMenu.handleClick(rawSlot);
+        } else if (holder instanceof BuyerBoostersMenu boostersMenu) {
+            boostersMenu.handleClick(rawSlot);
         }
     }
 
@@ -68,7 +72,8 @@ public final class BuyerInventoryListener implements Listener {
         InventoryHolder holder = top.getHolder(false);
         if (!(holder instanceof BuyerMenu)
                 && !(holder instanceof BuyerQuantityMenu)
-                && !(holder instanceof BuyerAutosellMenu)) {
+                && !(holder instanceof BuyerAutosellMenu)
+                && !(holder instanceof BuyerBoostersMenu)) {
             return;
         }
         int topSize = top.getSize();
@@ -89,6 +94,8 @@ public final class BuyerInventoryListener implements Listener {
             quantityMenu.onClose();
         } else if (holder instanceof BuyerAutosellMenu autosellMenu) {
             autosellMenu.onClose();
+        } else if (holder instanceof BuyerBoostersMenu boostersMenu) {
+            boostersMenu.onClose();
         }
     }
 

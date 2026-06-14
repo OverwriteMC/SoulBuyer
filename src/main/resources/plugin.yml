@@ -49,6 +49,15 @@ permissions:
   soulbuyer.donate:
     description: Open donate buyer menu (PlayerPoints)
     default: true
+  soulbuyer.boosters:
+    description: Open booster shop in buyer menu
+    default: true
+  soulbuyer.limit.vip:
+    description: Higher daily sell limit per item (128)
+    default: false
+  soulbuyer.limit.premium:
+    description: Premium daily sell limit per item (256)
+    default: false
   soulbuyer.multiplier.vip:
     description: VIP income multiplier tier
     default: false

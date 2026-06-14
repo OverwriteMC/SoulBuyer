@@ -70,6 +70,26 @@ public final class SchemaMigration {
                         updated_at BIGINT NOT NULL DEFAULT 0
                     )
                     """);
+            statement.execute("""
+                    CREATE TABLE IF NOT EXISTS soulbuyer_boosters (
+                        player_uuid VARCHAR(36) PRIMARY KEY,
+                        state TEXT NOT NULL,
+                        updated_at BIGINT NOT NULL DEFAULT 0
+                    )
+                    """);
+            statement.execute("""
+                    CREATE TABLE IF NOT EXISTS soulbuyer_sell_limits (
+                        player_uuid VARCHAR(36) PRIMARY KEY,
+                        period_key VARCHAR(16) NOT NULL,
+                        usage_data TEXT NOT NULL,
+                        updated_at BIGINT NOT NULL DEFAULT 0
+                    )
+                    """);
+            if (sqlite) {
+                statement.execute("INSERT OR IGNORE INTO soulbuyer_schema (version) VALUES (2)");
+            } else {
+                statement.execute("INSERT IGNORE INTO soulbuyer_schema (version) VALUES (2)");
+            }
         }
     }
 }

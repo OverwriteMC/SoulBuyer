@@ -74,11 +74,13 @@ gui:
       - " "
       - "&#9CA3AFIn catalog: &#E9D5FF{active_items} &#9CA3AFresources"
     sort-lore:
-      - "&#9CA3AFClick to apply sort"
+      - "&#9CA3AFCurrent: {sort}"
+      - "&#86EFAC▶ LMB — next mode"
+    sort: "&#D8B4FESort: {sort}"
     sort-price-desc: "&#D8B4FEMost expensive"
     sort-price-asc: "&#C4B5FDCheapest"
     sort-points-desc: "&#86EFACMost points"
-    sort-name: "&#E9D5FFBy name"
+    sort-points-asc: "&#C4B5FDFewest points"
     autosell: "&#86EFACAutosell"
     autosell-lore:
       - "&#9CA3AFStatus: {autosell_state}"
@@ -95,6 +97,17 @@ gui:
       - "&#6B7280on this server"
     autosell-no-access-lore:
       - "&#FF5555Donator feature"
+    boosters: "&#FCD34DBoosters"
+    boosters-lore:
+      - "&#9CA3AFTemporary sale"
+      - "&#9CA3AFand limit boosts"
+      - "&#86EFAC▶ LMB — shop"
+    boosters-disabled: " "
+    boosters-disabled-lore:
+      - "&#6B7280Boosters disabled"
+      - "&#6B7280on this server"
+    boosters-no-access-lore:
+      - "&#FF5555No booster access"
     sell-all: "&#86EFACSell all from inventory"
     sell-all-lore:
       - "&#9CA3AFInstantly sell every"
@@ -166,6 +179,37 @@ gui:
       - "&#9CA3AFCategories — what to sell."
       - "&#9CA3AFBell and nugget — notify"
       - "&#9CA3AFand minimum unit price."
+  boosters:
+    title: "&#4C1D95◆ &#6D28D9B&#7C3AEDo&#9333EAo&#7C3AEDs&#6D28D9t&#4C1D95e&#6D28D9rs &#4C1D95◆"
+    border: " "
+    separator: " "
+    info: "&#D8B4FEBooster shop"
+    info-lore:
+      - "&#9CA3AFPaid with: {currency}"
+      - "&#9CA3AFStacks with perks"
+      - "&#9CA3AFand progression."
+    offer-multiplier: "&#E9D5FFMultiplier booster"
+    offer-money: "&#FCD34DMoney booster"
+    offer-limit: "&#86EFACLimit booster"
+    offer-lore:
+      - "&#9CA3AFEffect: &#E9D5FF{effect}"
+      - "&#9CA3AFDuration: &#E9D5FF{duration}"
+      - "&#9CA3AFPrice: &#FCD34D{price}"
+      - "&#9CA3AFActive: {active_state}"
+      - "&#9CA3AFRemaining: &#E9D5FF{remaining}"
+      - "&#86EFAC▶ Click to buy"
+    active-yes: "&#86EFACyes"
+    active-no: "&#6B7280no"
+    currency-points: "&#E9D5FFSoulBuyer points"
+    currency-vault: "&#E9D5FFVault coins"
+    currency-playerpoints: "&#FCD34DPlayerPoints"
+
+boosters:
+  no-permission: "&#FF5555Boosters are unavailable."
+  purchased: "&#86EFACActivated: {offer}"
+  insufficient-points: "&#FF5555Not enough SoulBuyer points."
+  insufficient-vault: "&#FF5555Not enough coins."
+  insufficient-playerpoints: "&#FF5555Not enough PlayerPoints."
 
 autosell:
   no-permission: "&#FF5555Autosell is a donator feature."
@@ -178,10 +222,12 @@ sell:
   not-sellable: "&#FF5555{item} is not accepted."
   in-progress: "&#D8B4FESale already in progress..."
   empty: "&#FF5555No items to sell."
+  limit-reached: "&#FF5555Daily sell limit for this item is reached."
   success: "&#86EFACSold &#E9D5FF{count} &#86EFACstacks for &#E9D5FF{money} &#86EFACcoins (+&#E9D5FF{points} &#86EFACpoints)"
   success-playerpoints: "&#86EFACSold &#E9D5FF{count} &#86EFACstacks for &#FCD34D{money} &#86EFACpoints (+&#E9D5FF{points} &#86EFACpts)"
   partial: "&#D8B4FESome items were returned — not sellable."
   failed: "&#FF5555Sale failed. Items returned."
+  payout-limit: "&#FF5555Payout amount too large. Contact staff."
   returned: "&#D8B4FEUnsold items returned."
   no-economy: "&#FF5555Economy unavailable. Contact staff."
   no-economy-playerpoints: "&#FF5555PlayerPoints unavailable. Contact staff."

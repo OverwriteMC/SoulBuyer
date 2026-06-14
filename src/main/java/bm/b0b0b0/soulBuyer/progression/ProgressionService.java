@@ -32,20 +32,57 @@ public final class ProgressionService {
         double dominant = progress.categoryXp().values().stream()
                 .max(Comparator.naturalOrder())
                 .orElse(0.0D);
-        double bonusPercent = dominant * config.progression().dominantCategoryBonusPerLevel / 100.0D;
-        return 1.0D + bonusPercent;
+        if (!Double.isFinite(dominant) || dominant <= 0.0D) {
+            return 1.0D;
+        }
+        double xpPerLevel = Math.max(1.0D, config.progression().categoryXpPerLevel);
+        double level = dominant / xpPerLevel;
+        double bonus = 1.0D + level * config.progression().dominantCategoryBonusPerLevel / 100.0D;
+        double cap = Math.max(1.0D, config.progression().maxCategoryBonus);
+        return Math.min(bonus, cap);
     }
 
-    public double pointsForSale(SellableItemDefinition definition, int amount, double unitPrice) {
+    public double pointsForSale(SellableItemDefinition definition, int amount, double unitPriceBasis) {
+        double basis = sanitizeUnit(unitPriceBasis);
         double basePoints = definition.basePoints() * amount;
         if (config.progression().pointsPerCurrency <= 0.0D) {
-            return basePoints;
+            return sanitizeUnit(basePoints);
         }
-        return basePoints + unitPrice * amount * config.progression().pointsPerCurrency;
+        return sanitizeUnit(basePoints + basis * amount * config.progression().pointsPerCurrency);
+    }
+
+    public double moneyUnitPrice(
+            double basePrice,
+            double marketCoefficient,
+            double permissionMultiplier,
+            double categoryBonus,
+            double additiveMultiplier,
+            double moneyBooster
+    ) {
+        double factor = permissionMultiplier * categoryBonus + additiveMultiplier;
+        return sanitizeUnit(basePrice * marketCoefficient * factor * moneyBooster);
+    }
+
+    public double pointsUnitPriceBasis(double basePrice, double marketCoefficient, double permissionMultiplier) {
+        return sanitizeUnit(basePrice * marketCoefficient * permissionMultiplier);
+    }
+
+    public boolean isValidPayout(double totalMoney) {
+        if (!Double.isFinite(totalMoney) || totalMoney < 0.0D) {
+            return false;
+        }
+        return totalMoney <= config.progression().maxPayoutPerSale;
     }
 
     public Map<String, Double> categoryXpDelta(SellableItemDefinition definition, double pointsEarned) {
-        double xp = pointsEarned * config.progression().categoryXpPerPoint;
+        double xp = sanitizeUnit(pointsEarned * config.progression().categoryXpPerPoint);
         return Map.of(definition.categoryId(), xp);
+    }
+
+    private double sanitizeUnit(double value) {
+        if (!Double.isFinite(value) || value < 0.0D) {
+            return 0.0D;
+        }
+        return Math.min(value, config.progression().maxUnitPrice);
     }
 }

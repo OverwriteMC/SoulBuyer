@@ -48,4 +48,20 @@ public final class VaultEconomyHook {
         debug.log("vault deposit " + player.getName() + " amount=" + amount + " success=" + success);
         return success;
     }
+
+    public boolean has(org.bukkit.OfflinePlayer player, double amount) {
+        if (economy == null) {
+            return false;
+        }
+        return economy.has(player, amount);
+    }
+
+    public boolean withdraw(org.bukkit.OfflinePlayer player, double amount) {
+        if (economy == null || amount <= 0.0D) {
+            return amount <= 0.0D;
+        }
+        boolean success = economy.withdrawPlayer(player, amount).transactionSuccess();
+        debug.log("vault withdraw " + player.getName() + " amount=" + amount + " success=" + success);
+        return success;
+    }
 }

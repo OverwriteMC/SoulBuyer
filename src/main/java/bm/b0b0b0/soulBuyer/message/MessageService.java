@@ -75,6 +75,10 @@ public final class MessageService {
                 .toList();
     }
 
+    public String guiRaw(Player player, String key, String... pairs) {
+        return expand(player, loader.raw(locale(player), key), pairs);
+    }
+
     private String expand(Player player, String template, String... pairs) {
         String expanded = HexColorParser.replacePlaceholders(template, pairs);
         if (player != null && placeholderApiBridge != null) {

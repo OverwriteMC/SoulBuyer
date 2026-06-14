@@ -44,6 +44,17 @@ public final class YamlPlayerProgressRepository implements PlayerProgressReposit
         });
     }
 
+    @Override
+    public CompletableFuture<Boolean> trySpendPoints(UUID playerId, double amount) {
+        return find(playerId).thenCompose(existing -> {
+            if (existing.points() + 1.0E-9D < amount) {
+                return CompletableFuture.completedFuture(false);
+            }
+            return save(new PlayerProgress(playerId, existing.points() - amount, existing.categoryXp()))
+                    .thenApply(ignored -> true);
+        });
+    }
+
     private PlayerProgress read(UUID playerId) {
         Path path = playerPath(playerId);
         if (!Files.exists(path)) {

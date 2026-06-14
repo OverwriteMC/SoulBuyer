@@ -39,8 +39,7 @@ public final class GuiBuyerSettings extends YamlSerializable {
     @NewLine
     @Comment({
             @CommentValue("Кнопки GUI. slot: -1 = только шаблон (filler/separator)."),
-            @CommentValue("action: SELL_ALL | DECORATION | CATEGORY_FILTER | SORT_FILTER | PAGE_PREV | PAGE_NEXT"),
-            @CommentValue("category-filter / sort-filter — см. BuyerSortMode и categories в config.yml")
+            @CommentValue("action: SELL_ALL | DECORATION | CATEGORY_FILTER | SORT_CYCLE | PAGE_PREV | PAGE_NEXT | …"),
     })
     public Map<String, GuiGeneralSettings.GuiElementSettings> elements = defaultElements();
 
@@ -87,10 +86,17 @@ public final class GuiBuyerSettings extends YamlSerializable {
         marketStats.action = "DECORATION";
         elements.put("market-stats", marketStats);
 
-        elements.put("sort-price-desc", sortButton(46, "GOLD_INGOT", "gui.buyer.sort-price-desc", "price-desc"));
-        elements.put("sort-price-asc", sortButton(47, "IRON_NUGGET", "gui.buyer.sort-price-asc", "price-asc"));
-        elements.put("sort-points-desc", sortButton(50, "EXPERIENCE_BOTTLE", "gui.buyer.sort-points-desc", "points-desc"));
-        elements.put("sort-name", sortButton(51, "NAME_TAG", "gui.buyer.sort-name", "name"));
+        GuiGeneralSettings.GuiElementSettings sortCycle = new GuiGeneralSettings.GuiElementSettings();
+        sortCycle.slot = 45;
+        sortCycle.material = "COMPARATOR";
+        sortCycle.nameKey = "gui.buyer.sort";
+        sortCycle.loreKeys = List.of("gui.buyer.sort-lore");
+        sortCycle.action = "SORT_CYCLE";
+        elements.put("sort-cycle", sortCycle);
+
+        elements.put("filler-46", fillerPane(46));
+        elements.put("filler-47", fillerPane(47));
+        elements.put("filler-50", fillerPane(50));
 
         GuiGeneralSettings.GuiElementSettings autosell = new GuiGeneralSettings.GuiElementSettings();
         autosell.slot = 52;
@@ -99,6 +105,22 @@ public final class GuiBuyerSettings extends YamlSerializable {
         autosell.loreKeys = List.of("gui.buyer.autosell-lore");
         autosell.action = "AUTOSELL";
         elements.put("autosell", autosell);
+
+        GuiGeneralSettings.GuiElementSettings boosters = new GuiGeneralSettings.GuiElementSettings();
+        boosters.slot = 51;
+        boosters.material = "NETHER_STAR";
+        boosters.nameKey = "gui.buyer.boosters";
+        boosters.loreKeys = List.of("gui.buyer.boosters-lore");
+        boosters.action = "BOOSTERS";
+        elements.put("boosters", boosters);
+
+        GuiGeneralSettings.GuiElementSettings boostersDisabled = new GuiGeneralSettings.GuiElementSettings();
+        boostersDisabled.slot = -1;
+        boostersDisabled.material = "GRAY_STAINED_GLASS_PANE";
+        boostersDisabled.nameKey = "gui.buyer.boosters-disabled";
+        boostersDisabled.loreKeys = List.of("gui.buyer.boosters-disabled-lore");
+        boostersDisabled.action = "NONE";
+        elements.put("boosters-disabled", boostersDisabled);
 
         GuiGeneralSettings.GuiElementSettings autosellDisabled = new GuiGeneralSettings.GuiElementSettings();
         autosellDisabled.slot = -1;
@@ -119,6 +141,15 @@ public final class GuiBuyerSettings extends YamlSerializable {
         return elements;
     }
 
+    private static GuiGeneralSettings.GuiElementSettings fillerPane(int slot) {
+        GuiGeneralSettings.GuiElementSettings element = new GuiGeneralSettings.GuiElementSettings();
+        element.slot = slot;
+        element.material = "GRAY_STAINED_GLASS_PANE";
+        element.nameKey = "gui.buyer.separator";
+        element.action = "DECORATION";
+        return element;
+    }
+
     private static GuiGeneralSettings.GuiElementSettings categoryButton(
             int slot,
             String material,
@@ -133,22 +164,6 @@ public final class GuiBuyerSettings extends YamlSerializable {
         element.loreKeys = List.of(loreKey);
         element.action = "CATEGORY_FILTER";
         element.categoryFilter = categoryFilter;
-        return element;
-    }
-
-    private static GuiGeneralSettings.GuiElementSettings sortButton(
-            int slot,
-            String material,
-            String nameKey,
-            String sortFilter
-    ) {
-        GuiGeneralSettings.GuiElementSettings element = new GuiGeneralSettings.GuiElementSettings();
-        element.slot = slot;
-        element.material = material;
-        element.nameKey = nameKey;
-        element.loreKeys = List.of("gui.buyer.sort-lore");
-        element.action = "SORT_FILTER";
-        element.sortFilter = sortFilter;
         return element;
     }
 

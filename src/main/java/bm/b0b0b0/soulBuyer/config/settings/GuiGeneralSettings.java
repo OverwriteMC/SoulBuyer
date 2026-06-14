@@ -35,14 +35,17 @@ public final class GuiGeneralSettings extends YamlSerializable {
         @Comment(@CommentValue("Ключи строк lore в lang/*.yml"))
         public List<String> loreKeys = List.of();
 
-        @Comment(@CommentValue("NONE | DECORATION | SELL_ALL | CLOSE | CATEGORY_FILTER | SORT_FILTER | PAGE_PREV | PAGE_NEXT | …"))
+        @Comment(@CommentValue("NONE | DECORATION | SELL_ALL | CLOSE | CATEGORY_FILTER | SORT_CYCLE | PAGE_PREV | PAGE_NEXT | …"))
         public String action = "NONE";
 
         @Comment(@CommentValue("Для CATEGORY_FILTER — id категории; пусто = все"))
         public String categoryFilter = "";
 
-        @Comment(@CommentValue("Для SORT_FILTER — id сортировки (price-desc, price-asc, …)"))
+        @Comment(@CommentValue("Для SORT_CYCLE — не используется; режимы в BuyerSortMode.cycleModes()"))
         public String sortFilter = "";
+
+        @Comment(@CommentValue("Для BOOSTER_BUY — id предложения из config.yml → boosters.offers"))
+        public String offerId = "";
     }
 
     private static Map<String, GuiElementSettings> defaultNavigation() {

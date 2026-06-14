@@ -55,4 +55,25 @@ public final class PlayerPointsEconomyHook {
         debug.log("playerpoints deposit " + player.getName() + " amount=" + points + " success=" + success);
         return success;
     }
+
+    public boolean has(OfflinePlayer player, double amount) {
+        if (api == null) {
+            return false;
+        }
+        int points = (int) Math.ceil(amount);
+        return api.look(player.getUniqueId()) >= points;
+    }
+
+    public boolean withdraw(OfflinePlayer player, double amount) {
+        if (api == null || amount <= 0.0D) {
+            return amount <= 0.0D;
+        }
+        int points = (int) Math.ceil(amount);
+        if (points <= 0) {
+            return amount <= 0.0D;
+        }
+        boolean success = api.take(player.getUniqueId(), points);
+        debug.log("playerpoints withdraw " + player.getName() + " amount=" + points + " success=" + success);
+        return success;
+    }
 }

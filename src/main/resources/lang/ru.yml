@@ -74,11 +74,13 @@ gui:
       - " "
       - "&#9CA3AFВ ассортименте: &#E9D5FF{active_items} &#9CA3AFресурсов"
     sort-lore:
-      - "&#9CA3AFНажмите — применить сортировку"
+      - "&#9CA3AFСейчас: {sort}"
+      - "&#86EFAC▶ ЛКМ — следующий режим"
+    sort: "&#D8B4FEСортировка: {sort}"
     sort-price-desc: "&#D8B4FEДороже всего"
     sort-price-asc: "&#C4B5FDДешевле всего"
     sort-points-desc: "&#86EFACБольше очков"
-    sort-name: "&#E9D5FFПо названию"
+    sort-points-asc: "&#C4B5FDМеньше очков"
     autosell: "&#86EFACАвтопродажа"
     autosell-lore:
       - "&#9CA3AFСтатус: {autosell_state}"
@@ -95,6 +97,17 @@ gui:
       - "&#6B7280на этом сервере"
     autosell-no-access-lore:
       - "&#FF5555Доступно донатерам"
+    boosters: "&#FCD34DБустеры"
+    boosters-lore:
+      - "&#9CA3AFВременные усиления"
+      - "&#9CA3AFпродаж и лимитов"
+      - "&#86EFAC▶ ЛКМ — магазин"
+    boosters-disabled: " "
+    boosters-disabled-lore:
+      - "&#6B7280Бустеры отключены"
+      - "&#6B7280на этом сервере"
+    boosters-no-access-lore:
+      - "&#FF5555Нет доступа к бустерам"
     sell-all: "&#86EFACПродать всё из инвентаря"
     sell-all-lore:
       - "&#9CA3AFМгновенно продать все"
@@ -166,6 +179,37 @@ gui:
       - "&#9CA3AFКатегории — что продавать."
       - "&#9CA3AFКолокол и самородок —"
       - "&#9CA3AFуведомления и мин. цена."
+  boosters:
+    title: "&#4C1D95◆ &#6D28D9Б&#7C3AEDу&#9333EAс&#7C3AEDт&#6D28D9е&#4C1D95р&#6D28D9ы &#4C1D95◆"
+    border: " "
+    separator: " "
+    info: "&#D8B4FEМагазин бустеров"
+    info-lore:
+      - "&#9CA3AFПокупка за: {currency}"
+      - "&#9CA3AFЭффекты суммируются"
+      - "&#9CA3AFс правами и прогрессом."
+    offer-multiplier: "&#E9D5FFБустер множителя"
+    offer-money: "&#FCD34DБустер монет"
+    offer-limit: "&#86EFACБустер лимитов"
+    offer-lore:
+      - "&#9CA3AFЭффект: &#E9D5FF{effect}"
+      - "&#9CA3AFДлительность: &#E9D5FF{duration}"
+      - "&#9CA3AFЦена: &#FCD34D{price}"
+      - "&#9CA3AFАктивен: {active_state}"
+      - "&#9CA3AFОсталось: &#E9D5FF{remaining}"
+      - "&#86EFAC▶ Клик — купить"
+    active-yes: "&#86EFACда"
+    active-no: "&#6B7280нет"
+    currency-points: "&#E9D5FFочки SoulBuyer"
+    currency-vault: "&#E9D5FFмонеты Vault"
+    currency-playerpoints: "&#FCD34DPlayerPoints"
+
+boosters:
+  no-permission: "&#FF5555Бустеры недоступны."
+  purchased: "&#86EFACАктивирован: {offer}"
+  insufficient-points: "&#FF5555Недостаточно очков SoulBuyer."
+  insufficient-vault: "&#FF5555Недостаточно монет."
+  insufficient-playerpoints: "&#FF5555Недостаточно PlayerPoints."
 
 autosell:
   no-permission: "&#FF5555Автопродажа доступна донатерам."
@@ -178,10 +222,12 @@ sell:
   not-sellable: "&#FF5555{item} не скупается."
   in-progress: "&#D8B4FEПродажа уже выполняется..."
   empty: "&#FF5555Нет предметов для продажи."
+  limit-reached: "&#FF5555Дневной лимит продажи этого ресурса исчерпан."
   success: "&#86EFACПродано &#E9D5FF{count} &#86EFACпоз. на &#E9D5FF{money} &#86EFACмонет (+&#E9D5FF{points} &#86EFACочков)"
   success-playerpoints: "&#86EFACПродано &#E9D5FF{count} &#86EFACпоз. на &#FCD34D{money} &#86EFACпоинтов (+&#E9D5FF{points} &#86EFACочков)"
   partial: "&#D8B4FEЧасть предметов не скупается и возвращена."
   failed: "&#FF5555Ошибка продажи. Предметы возвращены."
+  payout-limit: "&#FF5555Сумма продажи слишком большая. Обратитесь к администрации."
   returned: "&#D8B4FEНепроданные предметы возвращены."
   no-economy: "&#FF5555Экономика недоступна. Обратитесь к администрации."
   no-economy-playerpoints: "&#FF5555PlayerPoints недоступен. Обратитесь к администрации."

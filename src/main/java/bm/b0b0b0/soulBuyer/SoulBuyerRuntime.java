@@ -10,7 +10,10 @@ import bm.b0b0b0.soulBuyer.market.PriceQuoteService;
 import bm.b0b0b0.soulBuyer.message.MessageService;
 import bm.b0b0b0.soulBuyer.model.PlayerProgress;
 import bm.b0b0b0.soulBuyer.progression.ProgressionService;
+import bm.b0b0b0.soulBuyer.booster.BoosterService;
+import bm.b0b0b0.soulBuyer.limit.SellLimitService;
 import bm.b0b0b0.soulBuyer.repository.PlayerProgressRepository;
+import bm.b0b0b0.soulBuyer.repository.PlayerSellLimitRepository;
 import bm.b0b0b0.soulBuyer.repository.SaleLogRepository;
 import bm.b0b0b0.soulBuyer.service.BuyerStatsService;
 import bm.b0b0b0.soulBuyer.service.SellSecureStorage;
@@ -32,6 +35,7 @@ public final class SoulBuyerRuntime implements SellService.PluginContext {
     private MarketService marketService;
     private ProgressionService progressionService;
     private PlayerProgressRepository playerProgressRepository;
+    private PlayerSellLimitRepository sellLimitRepository;
     private SaleLogRepository saleLogRepository;
     private VaultEconomyHook vaultEconomyHook;
     private PlayerPointsEconomyHook playerPointsEconomyHook;
@@ -39,6 +43,8 @@ public final class SoulBuyerRuntime implements SellService.PluginContext {
     private SellSecureStorage secureStorage;
     private BuyerGuiService buyerGuiService;
     private BuyerStatsService buyerStatsService;
+    private BoosterService boosterService;
+    private SellLimitService sellLimitService;
     private CatalogRotationService catalogRotationService;
     private final Map<UUID, PlayerProgress> progressCache = new ConcurrentHashMap<>();
     private volatile boolean ready;
@@ -56,6 +62,7 @@ public final class SoulBuyerRuntime implements SellService.PluginContext {
             MarketService marketService,
             ProgressionService progressionService,
             PlayerProgressRepository playerProgressRepository,
+            PlayerSellLimitRepository sellLimitRepository,
             SaleLogRepository saleLogRepository,
             VaultEconomyHook vaultEconomyHook,
             PlayerPointsEconomyHook playerPointsEconomyHook,
@@ -63,6 +70,8 @@ public final class SoulBuyerRuntime implements SellService.PluginContext {
             SellSecureStorage secureStorage,
             BuyerGuiService buyerGuiService,
             BuyerStatsService buyerStatsService,
+            BoosterService boosterService,
+            SellLimitService sellLimitService,
             CatalogRotationService catalogRotationService
     ) {
         this.config = config;
@@ -73,6 +82,7 @@ public final class SoulBuyerRuntime implements SellService.PluginContext {
         this.marketService = marketService;
         this.progressionService = progressionService;
         this.playerProgressRepository = playerProgressRepository;
+        this.sellLimitRepository = sellLimitRepository;
         this.saleLogRepository = saleLogRepository;
         this.vaultEconomyHook = vaultEconomyHook;
         this.playerPointsEconomyHook = playerPointsEconomyHook;
@@ -80,6 +90,8 @@ public final class SoulBuyerRuntime implements SellService.PluginContext {
         this.secureStorage = secureStorage;
         this.buyerGuiService = buyerGuiService;
         this.buyerStatsService = buyerStatsService;
+        this.boosterService = boosterService;
+        this.sellLimitService = sellLimitService;
         this.catalogRotationService = catalogRotationService;
     }
 
@@ -160,6 +172,16 @@ public final class SoulBuyerRuntime implements SellService.PluginContext {
     @Override
     public PlayerProgress cachedProgress(UUID playerId) {
         return progressCache.getOrDefault(playerId, new PlayerProgress(playerId, 0.0D, Map.of()));
+    }
+
+    @Override
+    public SellLimitService sellLimitService() {
+        return sellLimitService;
+    }
+
+    @Override
+    public PlayerSellLimitRepository sellLimitRepository() {
+        return sellLimitRepository;
     }
 
     @Override

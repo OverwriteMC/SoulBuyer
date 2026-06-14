@@ -1,5 +1,6 @@
 package bm.b0b0b0.soulBuyer.gui;
 
+import bm.b0b0b0.soulBuyer.booster.BoosterService;
 import bm.b0b0b0.soulBuyer.autosell.AutosellPayout;
 import bm.b0b0b0.soulBuyer.autosell.AutosellService;
 import bm.b0b0b0.soulBuyer.config.PluginConfig;
@@ -14,7 +15,6 @@ import bm.b0b0b0.soulBuyer.model.PlayerProgress;
 import bm.b0b0b0.soulBuyer.model.SellableItemDefinition;
 import bm.b0b0b0.soulBuyer.service.BuyerStatsService;
 import bm.b0b0b0.soulBuyer.service.InventorySellHelper;
-import bm.b0b0b0.soulBuyer.model.BuyerPayoutMode;
 import bm.b0b0b0.soulBuyer.service.SellService;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -43,6 +42,7 @@ public final class BuyerMenu implements InventoryHolder {
     private final SellService sellService;
     private final BuyerStatsService buyerStatsService;
     private final AutosellService autosellService;
+    private final BoosterService boosterService;
     private final BuyerMenuNavigation navigation;
     private final BuyerCategoryIconAnimator categoryIconAnimator;
     private final BuyerMenuLiveStatsUpdater liveStatsUpdater;
@@ -51,10 +51,9 @@ public final class BuyerMenu implements InventoryHolder {
     private final List<Integer> separatorSlots;
     private final Map<Integer, String> actions;
     private final Map<Integer, String> categoryBySlot = new HashMap<>();
-    private final Map<Integer, String> sortBySlot = new HashMap<>();
     private final Map<Integer, String> slotToItemId = new HashMap<>();
     private String categoryFilter = "";
-    private String sortMode = BuyerSortMode.DEFAULT;
+    private String sortMode = BuyerSortMode.PRICE_DESC;
     private int page;
     private final BuyerPayoutMode payoutMode;
     private boolean processing;
@@ -72,6 +71,7 @@ public final class BuyerMenu implements InventoryHolder {
             SellService sellService,
             BuyerStatsService buyerStatsService,
             AutosellService autosellService,
+            BoosterService boosterService,
             BuyerMenuNavigation navigation,
             BuyerMenuSession session
     ) {
@@ -86,12 +86,15 @@ public final class BuyerMenu implements InventoryHolder {
         this.sellService = sellService;
         this.buyerStatsService = buyerStatsService;
         this.autosellService = autosellService;
+        this.boosterService = boosterService;
         this.navigation = navigation;
         if (session != null) {
             this.categoryFilter = session.categoryFilter() == null ? "" : session.categoryFilter();
-            this.sortMode = session.sortMode() == null || session.sortMode().isBlank()
-                    ? BuyerSortMode.DEFAULT
-                    : session.sortMode();
+            this.sortMode = BuyerSortMode.normalize(
+                    session.sortMode() == null || session.sortMode().isBlank()
+                            ? BuyerSortMode.PRICE_DESC
+                            : session.sortMode()
+            );
             this.page = Math.max(0, session.page());
             this.payoutMode = session.payoutMode() == null ? BuyerPayoutMode.VAULT : session.payoutMode();
         } else {
@@ -101,7 +104,6 @@ public final class BuyerMenu implements InventoryHolder {
         this.separatorSlots = new ArrayList<>(config.buyerSeparatorSlots());
         this.actions = GuiLayoutHelper.actionBySlot(config.buyerGui().elements);
         indexCategoryButtons();
-        indexSortButtons();
         Component title = messageService.guiText(player, config.buyerTitleKey(payoutMode));
         this.inventory = Bukkit.createInventory(this, config.buyerSize(), title);
         GuiGeneralSettings.GuiElementSettings marketStatsElement = config.buyerGui().elements.get("market-stats");
@@ -193,10 +195,28 @@ public final class BuyerMenu implements InventoryHolder {
         navigation.openAutosell(player, session());
     }
 
+    private void handleBoostersClick() {
+        if (!boosterService.featureEnabled()) {
+            return;
+        }
+        if (!boosterService.canAccess(player)) {
+            messageService.send(player, "boosters.no-permission");
+            return;
+        }
+        categoryIconAnimator.stop();
+        liveStatsUpdater.stop();
+        closingIntentionally = true;
+        navigation.openBoosters(player, session());
+    }
+
     private void handleControlClick(int rawSlot, boolean rightClick) {
         String action = actionAt(rawSlot);
         if ("AUTOSELL".equals(action)) {
             handleAutosellClick(rightClick);
+            return;
+        }
+        if ("BOOSTERS".equals(action)) {
+            handleBoostersClick();
             return;
         }
         switch (action) {
@@ -204,7 +224,7 @@ public final class BuyerMenu implements InventoryHolder {
             case "PAGE_PREV" -> changePage(-1);
             case "PAGE_NEXT" -> changePage(1);
             case "CATEGORY_FILTER" -> selectCategory(categoryBySlot.getOrDefault(rawSlot, ""));
-            case "SORT_FILTER" -> selectSort(sortBySlot.getOrDefault(rawSlot, BuyerSortMode.DEFAULT));
+            case "SORT_CYCLE" -> cycleSort();
             default -> {
             }
         }
@@ -257,14 +277,14 @@ public final class BuyerMenu implements InventoryHolder {
         render();
     }
 
-    private void selectCategory(String categoryId) {
-        categoryFilter = categoryId == null ? "" : categoryId;
+    private void cycleSort() {
+        sortMode = BuyerSortMode.nextInCycle(sortMode);
         page = 0;
         render();
     }
 
-    private void selectSort(String sortId) {
-        sortMode = sortId == null || sortId.isBlank() ? BuyerSortMode.DEFAULT : sortId;
+    private void selectCategory(String categoryId) {
+        categoryFilter = categoryId == null ? "" : categoryId;
         page = 0;
         render();
     }
@@ -368,6 +388,12 @@ public final class BuyerMenu implements InventoryHolder {
             if ("autosell".equals(key) || "autosell-disabled".equals(key)) {
                 continue;
             }
+            if ("boosters".equals(key) || "boosters-disabled".equals(key)) {
+                continue;
+            }
+            if ("sort-cycle".equals(key)) {
+                continue;
+            }
             if ("CATEGORY_FILTER".equals(element.action)) {
                 String categoryId = element.categoryFilter == null ? "" : element.categoryFilter;
                 if (config.categoryIconAnimation().enabled && !categoryId.isEmpty()) {
@@ -380,18 +406,46 @@ public final class BuyerMenu implements InventoryHolder {
                 );
                 continue;
             }
-            if ("SORT_FILTER".equals(element.action)) {
-                String sortId = element.sortFilter == null ? BuyerSortMode.DEFAULT : element.sortFilter;
-                boolean active = sortMode.equals(sortId);
-                inventory.setItem(
-                        element.slot,
-                        active ? itemFactory.buildSelected(player, element) : itemFactory.build(player, element)
-                );
-                continue;
-            }
             inventory.setItem(element.slot, itemFactory.build(player, element));
         }
+        fillSortButton();
         fillAutosellButton(statsPairs);
+        fillBoostersButton();
+    }
+
+    private void fillSortButton() {
+        GuiGeneralSettings.GuiElementSettings sortElement = config.buyerGui().elements.get("sort-cycle");
+        if (sortElement == null || sortElement.slot < 0) {
+            return;
+        }
+        String sortLabel = messageService.raw(player, BuyerSortMode.labelKey(sortMode));
+        String[] pairs = new String[]{"sort", sortLabel};
+        inventory.setItem(sortElement.slot, itemFactory.buildSelected(player, sortElement, pairs));
+    }
+
+    private void fillBoostersButton() {
+        GuiGeneralSettings.GuiElementSettings boostersElement = config.buyerGui().elements.get("boosters");
+        if (boostersElement == null || boostersElement.slot < 0) {
+            return;
+        }
+        if (!boosterService.featureEnabled()) {
+            GuiGeneralSettings.GuiElementSettings disabled = config.buyerGui().elements.get("boosters-disabled");
+            if (disabled != null) {
+                inventory.setItem(boostersElement.slot, itemFactory.build(player, disabled));
+            }
+            return;
+        }
+        if (!boosterService.canAccess(player)) {
+            GuiGeneralSettings.GuiElementSettings locked = new GuiGeneralSettings.GuiElementSettings();
+            locked.slot = boostersElement.slot;
+            locked.material = boostersElement.material;
+            locked.nameKey = boostersElement.nameKey;
+            locked.loreKeys = List.of("gui.buyer.boosters-no-access-lore");
+            locked.action = boostersElement.action;
+            inventory.setItem(boostersElement.slot, itemFactory.build(player, locked));
+            return;
+        }
+        inventory.setItem(boostersElement.slot, itemFactory.build(player, boostersElement));
     }
 
     private void fillAutosellButton(String[] statsPairs) {
@@ -511,11 +565,9 @@ public final class BuyerMenu implements InventoryHolder {
             return Comparator.comparingDouble(this::unitPoints).reversed()
                     .thenComparing(SellableItemDefinition::id);
         }
-        if (BuyerSortMode.NAME_ASC.equals(sortMode)) {
-            return Comparator.comparing(
-                    (SellableItemDefinition definition) ->
-                            itemNameResolver.plainMaterialName(player, materialOf(definition))
-            ).thenComparing(SellableItemDefinition::id);
+        if (BuyerSortMode.POINTS_ASC.equals(sortMode)) {
+            return Comparator.comparingDouble(this::unitPoints)
+                    .thenComparing(SellableItemDefinition::id);
         }
         if (BuyerSortMode.INVENTORY_DESC.equals(sortMode)) {
             return Comparator.comparingInt(this::inventoryAmount).reversed()
@@ -538,14 +590,6 @@ public final class BuyerMenu implements InventoryHolder {
         return sellService.unitQuote(player, definition).inventoryAmount();
     }
 
-    private Material materialOf(SellableItemDefinition definition) {
-        try {
-            return Material.valueOf(definition.material().toUpperCase(java.util.Locale.ROOT));
-        } catch (IllegalArgumentException exception) {
-            return Material.STONE;
-        }
-    }
-
     private int categoryOrder(String categoryId) {
         SoulBuyerSettings.CategorySettings settings = config.categories().get(categoryId);
         return settings == null ? Integer.MAX_VALUE : settings.order;
@@ -561,14 +605,6 @@ public final class BuyerMenu implements InventoryHolder {
         for (GuiGeneralSettings.GuiElementSettings element : config.buyerGui().elements.values()) {
             if ("CATEGORY_FILTER".equals(element.action) && element.slot >= 0) {
                 categoryBySlot.put(element.slot, element.categoryFilter == null ? "" : element.categoryFilter);
-            }
-        }
-    }
-
-    private void indexSortButtons() {
-        for (GuiGeneralSettings.GuiElementSettings element : config.buyerGui().elements.values()) {
-            if ("SORT_FILTER".equals(element.action) && element.slot >= 0) {
-                sortBySlot.put(element.slot, element.sortFilter == null ? BuyerSortMode.DEFAULT : element.sortFilter);
             }
         }
     }

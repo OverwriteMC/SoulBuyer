@@ -4,11 +4,15 @@ import bm.b0b0b0.soulBuyer.config.PluginConfig;
 import bm.b0b0b0.soulBuyer.debug.SoulBuyerDebugLog;
 import bm.b0b0b0.soulBuyer.repository.SqlMarketRepository;
 import bm.b0b0b0.soulBuyer.repository.SqlPlayerAutosellRepository;
+import bm.b0b0b0.soulBuyer.repository.SqlPlayerBoosterRepository;
 import bm.b0b0b0.soulBuyer.repository.SqlPlayerProgressRepository;
+import bm.b0b0b0.soulBuyer.repository.SqlPlayerSellLimitRepository;
 import bm.b0b0b0.soulBuyer.repository.SqlSaleLogRepository;
 import bm.b0b0b0.soulBuyer.repository.YamlMarketRepository;
 import bm.b0b0b0.soulBuyer.repository.YamlPlayerAutosellRepository;
+import bm.b0b0b0.soulBuyer.repository.YamlPlayerBoosterRepository;
 import bm.b0b0b0.soulBuyer.repository.YamlPlayerProgressRepository;
+import bm.b0b0b0.soulBuyer.repository.YamlPlayerSellLimitRepository;
 import bm.b0b0b0.soulBuyer.repository.YamlSaleLogRepository;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -68,11 +72,23 @@ public final class StorageBootstrap {
                 executor,
                 config.isSqliteStorage()
         );
+        SqlPlayerBoosterRepository playerBoosterRepository = new SqlPlayerBoosterRepository(
+                provider.dataSource(),
+                executor,
+                config.isSqliteStorage()
+        );
+        SqlPlayerSellLimitRepository playerSellLimitRepository = new SqlPlayerSellLimitRepository(
+                provider.dataSource(),
+                executor,
+                config.isSqliteStorage()
+        );
         SqlMarketRepository marketRepository = new SqlMarketRepository(provider.dataSource(), executor);
         SqlSaleLogRepository saleLogRepository = new SqlSaleLogRepository(provider.dataSource(), executor);
         session = new StorageSession(
                 playerProgressRepository,
                 playerAutosellRepository,
+                playerBoosterRepository,
+                playerSellLimitRepository,
                 marketRepository,
                 saleLogRepository,
                 executor,
@@ -110,11 +126,23 @@ public final class StorageBootstrap {
                 config,
                 executor
         );
+        YamlPlayerBoosterRepository playerBoosterRepository = new YamlPlayerBoosterRepository(
+                plugin,
+                config,
+                executor
+        );
+        YamlPlayerSellLimitRepository playerSellLimitRepository = new YamlPlayerSellLimitRepository(
+                plugin,
+                config,
+                executor
+        );
         YamlMarketRepository marketRepository = new YamlMarketRepository(plugin, config, executor);
         YamlSaleLogRepository saleLogRepository = new YamlSaleLogRepository(plugin, config, executor);
         return new StorageSession(
                 playerProgressRepository,
                 playerAutosellRepository,
+                playerBoosterRepository,
+                playerSellLimitRepository,
                 marketRepository,
                 saleLogRepository,
                 executor,

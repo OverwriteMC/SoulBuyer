@@ -9,4 +9,6 @@ public interface BuyerMenuNavigation {
     void openQuantity(Player player, String itemId, BuyerMenuSession session);
 
     void openAutosell(Player player, BuyerMenuSession session);
+
+    void openBoosters(Player player, BuyerMenuSession session);
 }
