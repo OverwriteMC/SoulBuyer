@@ -112,6 +112,6 @@ public final class MarketService {
         if (!Double.isFinite(value)) {
             return 1.0D;
         }
-        return Math.max(config.minMarketCoefficient(), Math.min(1.0D, value));
+        return Math.clamp(value, config.minMarketCoefficient(), 1.0D);
     }
 }

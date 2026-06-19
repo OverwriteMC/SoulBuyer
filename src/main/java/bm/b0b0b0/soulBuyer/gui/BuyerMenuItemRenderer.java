@@ -48,7 +48,7 @@ public final class BuyerMenuItemRenderer {
             BuyerPayoutMode payoutMode
     ) {
         Material material = parseMaterial(definition.material());
-        ItemStack itemStack = ItemStack.of(material, Math.max(1, Math.min(64, quote.inventoryAmount())));
+        ItemStack itemStack = ItemStack.of(material, Math.clamp(quote.inventoryAmount(), 1, 64));
         ItemMeta meta = itemStack.getItemMeta();
         Component itemName = itemNameResolver.displayComponent(player, itemStack);
         meta.displayName(messageService.guiItemName(player, "gui.buyer.item-name", itemName));

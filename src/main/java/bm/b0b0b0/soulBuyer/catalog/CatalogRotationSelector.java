@@ -20,7 +20,7 @@ public final class CatalogRotationSelector {
         if (pool.isEmpty()) {
             return Set.of();
         }
-        int safeTarget = Math.max(1, Math.min(targetCount, pool.size()));
+        int safeTarget = Math.clamp(targetCount, 1, pool.size());
         Map<String, List<SellableItemDefinition>> byCategory = new LinkedHashMap<>();
         for (SellableItemDefinition definition : pool) {
             byCategory.computeIfAbsent(definition.categoryId(), ignored -> new ArrayList<>()).add(definition);

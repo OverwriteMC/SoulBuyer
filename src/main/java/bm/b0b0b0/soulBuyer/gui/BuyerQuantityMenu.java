@@ -184,7 +184,7 @@ public final class BuyerQuantityMenu implements InventoryHolder {
             render();
             return;
         }
-        selectedAmount = Math.max(1, Math.min(maxAmount, amount));
+        selectedAmount = Math.clamp(maxAmount, 1, amount);
         render();
     }
 
@@ -239,7 +239,7 @@ public final class BuyerQuantityMenu implements InventoryHolder {
         }
         ItemUnitQuote unitQuote = sellService.unitQuote(player, definition);
         ItemStack preview = itemRenderer.render(player, definition, unitQuote, parentSession.payoutMode());
-        preview.setAmount(Math.max(1, Math.min(64, selectedAmount)));
+        preview.setAmount(Math.clamp(selectedAmount, 1, 64));
         inventory.setItem(quantityGui.previewSlot, preview);
     }
 
