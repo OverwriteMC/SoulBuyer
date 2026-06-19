@@ -54,7 +54,7 @@ public final class ConfigLegacyGuard {
     private static boolean containsLegacyItemsSection(String yaml) {
         for (String line : yaml.split("\\R")) {
             String trimmed = line.trim();
-            if (trimmed.equals("items:") || trimmed.startsWith("items:")) {
+            if (trimmed.startsWith("items:")) {
                 return true;
             }
         }

@@ -30,7 +30,7 @@ public final class BuyerStatsService {
 
     private final Map<UUID, PlayerDailySaleStats> dailyCache = new ConcurrentHashMap<>();
     private final Map<UUID, Long> dailyLoadedDay = new ConcurrentHashMap<>();
-    private volatile ZoneId dayZone = ZoneId.systemDefault();
+    private final ZoneId dayZone = ZoneId.systemDefault();
 
     public BuyerStatsService(
             PluginConfig config,

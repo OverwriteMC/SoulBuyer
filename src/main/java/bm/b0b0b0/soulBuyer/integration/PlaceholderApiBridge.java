@@ -53,8 +53,6 @@ public final class PlaceholderApiBridge {
         }
         try {
             return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, input);
-        } catch (NoClassDefFoundError exception) {
-            return input;
         } catch (Throwable throwable) {
             return input;
         }

@@ -183,14 +183,13 @@ public final class BuyerAutosellMenu implements InventoryHolder {
     }
 
     private String[] settingsPairs(PlayerAutosellSettings settings) {
-        String[] pairs = new String[]{
+        return new String[]{
                 "state", messageService.raw(player, settings.enabled() ? "gui.autosell.state-on" : "gui.autosell.state-off"),
                 "trigger", messageService.raw(player, triggerKey(settings.trigger())),
                 "notify", messageService.raw(player, notifyKey(settings.notifyMode())),
                 "min_price", String.valueOf(settings.minUnitPrice()),
                 "payout", messageService.raw(player, payoutKey(settings.payoutTarget()))
         };
-        return pairs;
     }
 
     private String triggerKey(String trigger) {

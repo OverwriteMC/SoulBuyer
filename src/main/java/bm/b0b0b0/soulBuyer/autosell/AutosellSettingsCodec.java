@@ -94,9 +94,7 @@ public final class AutosellSettingsCodec {
         if (payload == null) {
             return lines;
         }
-        for (String line : payload.split("\n")) {
-            lines.add(line);
-        }
+        lines.addAll(Arrays.asList(payload.split("\n")));
         return lines;
     }
 }
