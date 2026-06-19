@@ -11,14 +11,15 @@ import bm.b0b0b0.soulBuyer.model.BoosterType;
 import bm.b0b0b0.soulBuyer.model.PlayerBoosterState;
 import bm.b0b0b0.soulBuyer.repository.PlayerBoosterRepository;
 import bm.b0b0b0.soulBuyer.repository.PlayerProgressRepository;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BoosterService {
 

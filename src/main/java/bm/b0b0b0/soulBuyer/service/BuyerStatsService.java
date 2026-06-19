@@ -9,13 +9,14 @@ import bm.b0b0b0.soulBuyer.message.MessageService;
 import bm.b0b0b0.soulBuyer.model.PlayerDailySaleStats;
 import bm.b0b0b0.soulBuyer.repository.SaleLogRepository;
 import bm.b0b0b0.soulBuyer.util.DurationFormatter;
+import org.bukkit.entity.Player;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.entity.Player;
 
 public final class BuyerStatsService {
 

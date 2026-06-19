@@ -3,11 +3,12 @@ package bm.b0b0b0.soulBuyer.market;
 import bm.b0b0b0.soulBuyer.config.PluginConfig;
 import bm.b0b0b0.soulBuyer.repository.MarketRepository;
 import bm.b0b0b0.soulBuyer.sync.RedisBootstrap;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 public final class MarketService {
 

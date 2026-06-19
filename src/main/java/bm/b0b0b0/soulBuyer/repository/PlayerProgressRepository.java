@@ -1,8 +1,8 @@
 package bm.b0b0b0.soulBuyer.repository;
 
 import bm.b0b0b0.soulBuyer.model.PlayerProgress;
+
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 

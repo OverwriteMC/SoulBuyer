@@ -1,13 +1,14 @@
 package bm.b0b0b0.soulBuyer.config;
 
 import bm.b0b0b0.soulBuyer.debug.SoulBuyerDebugLog;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ConfigLegacyGuard {
 
