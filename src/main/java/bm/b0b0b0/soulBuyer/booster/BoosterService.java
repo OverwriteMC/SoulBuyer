@@ -126,7 +126,8 @@ public final class BoosterService {
         CompletableFuture<Boolean> payment = switch (currency) {
             case PROGRESSION_POINTS -> progressRepository.trySpendPoints(playerId, offer.price);
             case VAULT -> CompletableFuture.completedFuture(vaultEconomyHook.withdraw(player, offer.price));
-            case PLAYER_POINTS -> CompletableFuture.completedFuture(playerPointsEconomyHook.withdraw(player, offer.price));
+            case PLAYER_POINTS ->
+                    CompletableFuture.completedFuture(playerPointsEconomyHook.withdraw(player, offer.price));
         };
         payment.thenCompose(paid -> {
             if (!paid) {
@@ -152,9 +153,7 @@ public final class BoosterService {
         Bukkit.getScheduler().runTask(plugin, () -> {
             if (player.isOnline()) {
                 if (success && offer != null) {
-                    messageService.send(player, "boosters.purchased", new String[]{
-                            "offer", messageService.guiRaw(player, offer.nameKey)
-                    });
+                    messageService.send(player, "boosters.purchased", "offer", messageService.guiRaw(player, offer.nameKey));
                     if (currency() == BoosterCurrency.PROGRESSION_POINTS && progressCacheRefresher != null) {
                         progressCacheRefresher.accept(player.getUniqueId());
                     }

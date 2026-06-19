@@ -12,7 +12,7 @@ public interface PlayerProgressRepository {
 
     CompletableFuture<Void> save(PlayerProgress progress);
 
-    public CompletableFuture<Void> addPointsAndCategoryXp(UUID playerId, double points, Map<String, Double> categoryXpDelta);
+    CompletableFuture<Void> addPointsAndCategoryXp(UUID playerId, double points, Map<String, Double> categoryXpDelta);
 
     CompletableFuture<Boolean> trySpendPoints(UUID playerId, double amount);
 }

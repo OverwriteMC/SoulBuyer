@@ -32,7 +32,7 @@ public final class CatalogRotationSelector {
         LinkedHashSet<String> selected = new LinkedHashSet<>();
         if (minPerCategory > 0) {
             List<String> categoryOrder = categories.entrySet().stream()
-                    .sorted(Map.Entry.comparingByValue((left, right) -> Integer.compare(left.order, right.order)))
+                    .sorted(Map.Entry.comparingByValue(Comparator.comparingInt(left -> left.order)))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toCollection(ArrayList::new));
             for (String categoryId : categoryOrder) {

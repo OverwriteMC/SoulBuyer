@@ -156,8 +156,8 @@ public final class BuyerBoostersMenu implements InventoryHolder {
                     "effect", formatEffect(offer),
                     "remaining", BoosterDurationFormatter.formatMillis(remaining),
                     "active_state", messageService.raw(player, remaining > 0L
-                            ? "gui.boosters.active-yes"
-                            : "gui.boosters.active-no")
+                    ? "gui.boosters.active-yes"
+                    : "gui.boosters.active-no")
             };
             GuiGeneralSettings.GuiElementSettings view = copyOfferElement(element, offer);
             if (remaining > 0L) {

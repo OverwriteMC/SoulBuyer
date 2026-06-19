@@ -106,7 +106,7 @@ public final class StorageDataPresence {
         return plugin.getDataFolder().toPath().resolve(relative);
     }
 
-    private static int sqlPlayerCount(DataSource dataSource) throws Exception {
+    private static int sqlPlayerCount(DataSource dataSource) {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM soulbuyer_players")) {
@@ -116,7 +116,7 @@ public final class StorageDataPresence {
         }
     }
 
-    private static int sqlMarketCount(DataSource dataSource) throws Exception {
+    private static int sqlMarketCount(DataSource dataSource) {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM soulbuyer_market")) {

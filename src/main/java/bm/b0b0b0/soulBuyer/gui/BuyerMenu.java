@@ -466,8 +466,8 @@ public final class BuyerMenu implements InventoryHolder {
                 ? autosellPayoutKey(autosellSettings.payoutTarget())
                 : autosellPayoutKey(
                 config.defaultOpenPayoutMode() == BuyerPayoutMode.PLAYER_POINTS
-                        ? AutosellPayout.PLAYER_POINTS
-                        : AutosellPayout.VAULT
+                ? AutosellPayout.PLAYER_POINTS
+                : AutosellPayout.VAULT
         );
         String[] autosellPairs = mergePairs(
                 new String[]{

@@ -147,13 +147,13 @@ public final class BuyerQuantityMenu implements InventoryHolder {
                 selectedAmount,
                 SaleDelivery.CHAT,
                 () ->
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    processing = false;
-                    closingIntentionally = true;
-                    if (player.isOnline()) {
-                        navigation.openBuyer(player, parentSession);
-                    }
-                }),
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            processing = false;
+                            closingIntentionally = true;
+                            if (player.isOnline()) {
+                                navigation.openBuyer(player, parentSession);
+                            }
+                        }),
                 parentSession.payoutMode()
         );
     }

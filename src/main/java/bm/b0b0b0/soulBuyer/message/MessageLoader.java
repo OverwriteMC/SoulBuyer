@@ -94,7 +94,7 @@ public final class MessageLoader {
     }
 
     private void mergeMissing(Map<String, Object> target, Map<String, Object> defaults) {
-        defaults.forEach((key, value) -> target.putIfAbsent(key, value));
+        defaults.forEach(target::putIfAbsent);
     }
 
     private void flatten(String prefix, ConfigurationSection section, Map<String, Object> target) {
@@ -108,7 +108,6 @@ public final class MessageLoader {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public List<String> lore(String locale, String key) {
         Object value = resolve(locale, key);
         if (value instanceof List<?> list) {
