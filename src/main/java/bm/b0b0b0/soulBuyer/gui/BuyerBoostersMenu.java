@@ -199,9 +199,7 @@ public final class BuyerBoostersMenu implements InventoryHolder {
     }
 
     private String formatPrice(double price) {
-        if (boosterService.currency() == BoosterCurrency.PROGRESSION_POINTS) {
-            return itemNameResolver.formatMoney(price);
-        }
+        boosterService.currency();
         return itemNameResolver.formatMoney(price);
     }
 
